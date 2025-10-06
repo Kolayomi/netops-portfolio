@@ -1,0 +1,9 @@
+---
+- name: Safe change with pre/post checks and rollback
+  hosts: leafs
+  gather_facts: no
+  vars:
+    # Example demo change
+    cfg_candidate: "interface lo\n description TEST-CHANGE\n"
+  roles:
+    - role: safe_change

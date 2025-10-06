@@ -1,0 +1,11 @@
+---
+# Example: apply config in FRR (replace with napalm/vendor modules for real devices)
+- name: Apply candidate config (FRR)
+  ansible.builtin.shell: |
+    docker exec -i clab-evpn-demo-{{ inventory_hostname }} vtysh <<'EOF'
+    configure terminal
+    {{ cfg_candidate }}
+    end
+    write memory
+    EOF
+  delegate_to: localhost

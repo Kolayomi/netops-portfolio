@@ -1,0 +1,10 @@
+---
+- name: Determine backup file for this change
+  ansible.builtin.set_fact:
+    _rb_file: "{{ rollback_dir }}/{{ inventory_hostname }}-{{ change_id }}.cfg"
+
+- name: Roll back (restore FRR config)
+  ansible.builtin.shell: |
+    docker cp {{ _rb_file }} clab-evpn-demo-{{ inventory_hostname }}:/etc/frr/frr.conf
+    docker exec clab-evpn-demo-{{ inventory_hostname }} bash -lc "chown frr:frr /etc/frr/frr.conf && systemctl restart frr"
+  delegate_to: localhost

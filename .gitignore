@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+ansible/.vault_pass
+ansible/roles/safe_change/files/rollback/*
+*.swp
+*.log
+containerlab/*/clab-*.tar
+.DS_Store

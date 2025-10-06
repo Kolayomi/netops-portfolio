@@ -1,0 +1,27 @@
+---
+- name: Record timestamp
+  ansible.builtin.set_fact:
+    _ts: "{{ lookup('ansible.builtin.pipe','date +%Y%m%d-%H%M%S') }}"
+
+- name: Backup running-config (FRR via docker exec)
+  ansible.builtin.shell: |
+    docker exec clab-evpn-demo-{{ inventory_hostname }} vtysh -c 'show running' > /tmp/{{ inventory_hostname }}-{{ _ts }}.cfg
+  delegate_to: localhost
+
+- name: Save backup to repo rollback folder
+  ansible.builtin.copy:
+    src: "/tmp/{{ inventory_hostname }}-{{ _ts }}.cfg"
+    dest: "{{ rollback_dir }}/{{ inventory_hostname }}-{{ change_id }}.cfg"
+
+- name: Pre-check commands
+  ansible.builtin.shell: |
+    docker exec clab-evpn-demo-{{ inventory_hostname }} vtysh -c "{{ item }}"
+  delegate_to: localhost
+  loop: "{{ precheck_commands }}"
+  register: precheck_out
+
+- name: Fail if BGP not healthy (simple heuristic)
+  ansible.builtin.assert:
+    that:
+      - "'Established' in (precheck_out.results | map(attribute='stdout') | list | join(' '))"
+    fail_msg: "BGP not established on {{ inventory_hostname }}. Aborting change."

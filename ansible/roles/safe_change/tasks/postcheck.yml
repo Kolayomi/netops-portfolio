@@ -1,0 +1,13 @@
+---
+- name: Post-check commands
+  ansible.builtin.shell: |
+    docker exec clab-evpn-demo-{{ inventory_hostname }} vtysh -c "{{ item }}"
+  delegate_to: localhost
+  loop: "{{ postcheck_commands }}"
+  register: postcheck_out
+
+- name: Validate health after change
+  ansible.builtin.assert:
+    that:
+      - "'Established' in (postcheck_out.results | map(attribute='stdout') | list | join(' '))"
+    fail_msg: "Post-check failed on {{ inventory_hostname }}. See logs."

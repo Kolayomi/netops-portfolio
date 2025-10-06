@@ -1,0 +1,99 @@
+name: evpn-demo
+prefix: clab
+topology:
+  kinds:
+    linux:
+      image: alpine:3.18   # default for simple hosts
+
+  nodes:
+    # FRR routers (use quay.io FRR image)
+    sp1:
+      kind: linux
+      image: quay.io/frrouting/frr:9.0.2
+      mgmt-ipv4: 172.20.20.11
+      binds:
+        - ./frr/sp1/frr.conf:/etc/frr/frr.conf
+        - ./frr/daemons:/etc/frr/daemons
+    sp2:
+      kind: linux
+      image: quay.io/frrouting/frr:9.0.2
+      mgmt-ipv4: 172.20.20.12
+      binds:
+        - ./frr/sp2/frr.conf:/etc/frr/frr.conf
+        - ./frr/daemons:/etc/frr/daemons
+
+    leaf1:
+      kind: linux
+      image: quay.io/frrouting/frr:9.0.2
+      mgmt-ipv4: 172.20.20.21
+      binds:
+        - ./frr/leaf1/frr.conf:/etc/frr/frr.conf
+        - ./frr/daemons:/etc/frr/daemons
+    leaf2:
+      kind: linux
+      image: quay.io/frrouting/frr:9.0.2
+      mgmt-ipv4: 172.20.20.22
+      binds:
+        - ./frr/leaf2/frr.conf:/etc/frr/frr.conf
+        - ./frr/daemons:/etc/frr/daemons
+    leaf3:
+      kind: linux
+      image: quay.io/frrouting/frr:9.0.2
+      mgmt-ipv4: 172.20.20.23
+      binds:
+        - ./frr/leaf3/frr.conf:/etc/frr/frr.conf
+        - ./frr/daemons:/etc/frr/daemons
+    leaf4:
+      kind: linux
+      image: quay.io/frrouting/frr:9.0.2
+      mgmt-ipv4: 172.20.20.24
+      binds:
+        - ./frr/leaf4/frr.conf:/etc/frr/frr.conf
+        - ./frr/daemons:/etc/frr/daemons
+
+    # Test hosts (plain Alpine)
+    h1:
+      kind: linux
+      mgmt-ipv4: 172.20.20.101
+      exec:
+        - ip addr add 10.10.10.11/24 dev eth1
+        - ip link set eth1 up
+    h2:
+      kind: linux
+      mgmt-ipv4: 172.20.20.102
+      exec:
+        - ip addr add 10.10.10.12/24 dev eth1
+        - ip link set eth1 up
+    h3:
+      kind: linux
+      mgmt-ipv4: 172.20.20.103
+      exec:
+        - ip addr add 10.20.20.13/24 dev eth1
+        - ip link set eth1 up
+    h4:
+      kind: linux
+      mgmt-ipv4: 172.20.20.104
+      exec:
+        - ip addr add 10.20.20.14/24 dev eth1
+        - ip link set eth1 up
+
+  links:
+    # leaf↔spine
+    - endpoints: ["leaf1:eth1","sp1:eth1"]
+    - endpoints: ["leaf1:eth2","sp2:eth1"]
+    - endpoints: ["leaf2:eth1","sp1:eth2"]
+    - endpoints: ["leaf2:eth2","sp2:eth2"]
+    - endpoints: ["leaf3:eth1","sp1:eth3"]
+    - endpoints: ["leaf3:eth2","sp2:eth3"]
+    - endpoints: ["leaf4:eth1","sp1:eth4"]
+    - endpoints: ["leaf4:eth2","sp2:eth4"]
+
+    # hosts↔leaves
+    - endpoints: ["h1:eth1","leaf1:eth10"]
+    - endpoints: ["h2:eth1","leaf2:eth10"]
+    - endpoints: ["h3:eth1","leaf3:eth10"]
+    - endpoints: ["h4:eth1","leaf4:eth10"]
+
+mgmt:
+  network: clab-mgmt
+  ipv4-subnet: 172.20.20.0/24

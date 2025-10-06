@@ -1,0 +1,16 @@
+---
+rollback_dir: roles/safe_change/files/rollback
+change_id: "chg-{{ lookup('ansible.builtin.pipe','date +%Y%m%d-%H%M%S') }}"
+
+# FRR pre/post checks (simple)
+precheck_commands:
+  - show bgp summary
+  - show ip route summary
+postcheck_commands:
+  - show bgp summary
+  - show ip route summary
+
+# Example napalm block for real devices (unused in lab)
+napalm:
+  driver: ios
+  optional_args: {}

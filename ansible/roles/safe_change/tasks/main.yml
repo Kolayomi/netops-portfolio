@@ -1,0 +1,9 @@
+---
+- import_tasks: precheck.yml
+- block:
+    - import_tasks: change.yml
+    - import_tasks: postcheck.yml
+  rescue:
+    - debug: msg="Change failed — rolling back {{ inventory_hostname }}"
+    - import_tasks: rollback.yml
+    - fail: msg="Rolled back {{ inventory_hostname }} due to failed checks."
