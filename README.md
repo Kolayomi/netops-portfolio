@@ -3,6 +3,9 @@
 This repo gives you a runnable FRR leaf–spine lab (via Containerlab/Docker) and a vendor-agnostic
 Ansible "safe change" role (pre-check → backup → change → post-check → rollback).
 
+[![netops-ci](https://github.com/Kolayomi/netops-portfolio/actions/workflows/netops-ci.yml/badge.svg)](https://github.com/Kolayomi/netops-portfolio/actions/workflows/netops-ci.yml)
+
+
 ## Quick start
 1) Install Docker + Containerlab (Ubuntu):
    ```bash
